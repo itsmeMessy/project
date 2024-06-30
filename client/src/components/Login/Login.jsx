@@ -78,8 +78,16 @@ export default function Login() {
             theme: "light",
           });
           navigate('/allbooks');
-        } else {
+
+        } 
+        else if (res.data.rrrr === 'xxxx'){
+           navigate('/sp/allbooks')
+        }
+        else if(res.data.rrrr==='admin') {
           navigate('/admin/ad_av_books');
+        }
+        else{
+          navigate('/')
         }
       } else {
         setError(res.data.error);
@@ -149,7 +157,7 @@ export default function Login() {
               />
             </div>
             <div className="flex items-center justify-between mb-6">
-              <a href="#" className="text-orange-500">
+              <a href="/reset_pass" className="text-orange-500">
                 Forgot password?
               </a>
             </div>

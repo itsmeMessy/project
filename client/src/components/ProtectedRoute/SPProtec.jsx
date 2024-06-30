@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import axios from 'axios';
 
-const ProtectedRoute = () => {
+const SPProtect = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
     const [role, setRole] = useState(null)
   console.log(isAuthenticated)
@@ -25,10 +25,10 @@ const ProtectedRoute = () => {
         return <div>Loading...</div>;
     }
 
-    if(!isAuthenticated|| role !=='user'){
+    if(!isAuthenticated|| role !=='xxxx'){
         return <Navigate to = "/" />
     }
     return <Outlet />
 };
 
-export default ProtectedRoute;
+export default SPProtect;

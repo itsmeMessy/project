@@ -16,7 +16,7 @@ const getId = async(req, res)=>{
         const [isName]= await db.promise().query(findName, [id])
         if(!isName) return res.json({error:"Invalid student Id"})
          const name = isName[0].fullname
-        console.log(name)
+
         return res.json({valid:true, id, name})
     })
 }
@@ -25,6 +25,8 @@ const getId = async(req, res)=>{
 const viewBooks = async (req, res) => {
     const findID = "SELECT * FROM users WHERE stud_id = ?";
     const findBookPost = "SELECT * FROM books WHERE id = ?";
+    const findAvail = "SELECT * FROM books where available = True"
+        const findNotAvail = "SELECT * FROM books where available = False"
     const ref = req.cookies.rfs;
 
     if (!ref) return res.json({ error: "Invalid Token" });
@@ -39,15 +41,26 @@ const viewBooks = async (req, res) => {
         const [book_post] = await db.promise().query(findBookPost, [id]);
 
         if (!book_post.length) return res.json({ error: "No ID matches" });
-
-        
         book_post.forEach(book => {
             if (book.photo) {
                 book.photo = book.photo.toString('base64');
             }
         });
+        const [isAvail] = await db.promise().query(findAvail)
+        isAvail.forEach(book => {
+          if (book.photo) {
+              book.photo = book.photo.toString('base64');
+          }
+        })
+        const [isNotAvail] = await db.promise().query(findNotAvail)
+        isNotAvail.forEach(book => {
+          if (book.photo) {
+              book.photo = book.photo.toString('base64');
+          }
+        })
 
-        return res.json({ data_value: book_post, valid: true });
+
+        return res.json({ data_value: book_post, valid: true, avail:isAvail, notAvail:isNotAvail });
     });
 };
 

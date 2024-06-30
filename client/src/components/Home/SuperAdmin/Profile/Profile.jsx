@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import Swal from 'sweetalert2'
 import axios from 'axios'
 import Upload from './Upload'
-import Navbar from '../../Navbar/Navbar'
+import SuperAdminNav from '../Navbar/SPadminNavbar'
 
 export default function Editprofile() {
     const [name, setName] = useState('')
@@ -56,40 +55,14 @@ export default function Editprofile() {
         setProfile(prevProfile => ({ ...prevProfile, [name]: value }))
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        Swal.fire({
-            title: "Are you sure?",
-            text: "Do you want to update your profile?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, update it!"
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const res = await axios.post(`${process.env.REACT_APP_URI}/update_profile`, profile, { withCredentials: true })
-                    if (res.data.valid) {
-                        Swal.fire({
-                            title: "Updated!",
-                            text: "Your profile has been updated.",
-                            icon: "success"
-                        });
-                    } else {
-                        setError(res.data.error)
-                    }
-                } catch (error) {
-                    setError(error.message)
-                }
-            }
-        });
+    const handleEdit = (id)=>{
+        
     }
 
     return (
         <>
             <div className='flex'>
-                <Navbar />
+                <SuperAdminNav />
                 <main className='ml-60 flex-grow p-6'>
                     <div className="min-h-screen bg-zinc-100 p-4">
                         <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
@@ -140,7 +113,7 @@ export default function Editprofile() {
                                             <p className="text-purple-500">Contributions</p>
                                         </div>
                                     </div>
-                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                    <form className="space-y-4">
                                         <div className="flex gap-4">
                                             <div className="flex-1">
                                                 <label className="block text-zinc-700 mb-2">Full name</label>
@@ -166,8 +139,11 @@ export default function Editprofile() {
                                             </div>
                                         </div>
                                         <div className="flex gap-4">
-                                            <button type="submit" className="bg-orange-500 text-white px-4 py-2 rounded-md">
+                                            <button type="button" className="bg-orange-500 text-white px-4 py-2 rounded-md">
                                                 Update Profile
+                                            </button>
+                                            <button type="button" className="bg-zinc-300 text-zinc-700 px-4 py-2 rounded-md">
+                                                Reset
                                             </button>
                                         </div>
                                     </form>

@@ -1,7 +1,25 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../../Navbar/Navbar'
+import axios from 'axios'
+
 
 export default function BorrowedBooks() {
+  const [book, setBook] = useState([])
+
+  useEffect(()=>{
+    const fetchData = async()=>{
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_URI}/borrowed_books`, {withCredentials:true})
+        if(res.data.valid){
+          setBook(res.data.value)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchData()
+  },[])
+
   return (
     <>
     <div className='flex'>
@@ -17,18 +35,20 @@ export default function BorrowedBooks() {
     </div>
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <div class="p-4 bg-white dark:bg-zinc-700 rounded shadow">
-      <img src="https://placehold.co/100x150" alt="Book Cover" class="mb-4 mx-auto" />
-      <p class="font-semibold">Refactoring</p>
-      <p class="text-zinc-500 dark:text-zinc-400">Martin Fowler, 1999</p>
-      <div class="my-2 text-sm text-zinc-500 dark:text-zinc-400">
-        <p>Borrowed on 05-Mar-2023</p>
-        <p>Submission Due</p>
-      </div>
-      <div class="flex justify-between items-center">
-        <button class="p-2 bg-zinc-200 dark:bg-zinc-600 rounded">Borrowed</button>
-      </div>
-    </div>
+   {book.map((book, index)=>(
+     <div key={index} class="p-4 bg-white dark:bg-zinc-700 rounded shadow">
+     <img src={`data:image/jpeg;base64,${book.photo}`} className="mb-4 mx-auto" alt="Book Cover" />
+
+     <p class="font-semibold">{book.book}</p>
+     <div class="my-2 text-sm text-zinc-500 dark:text-zinc-400">
+       <p>Accepted on {book.accepted}</p>
+       <p>Submission Due</p>
+     </div>
+     <div class="flex justify-between items-center">
+       <button class="p-2 bg-zinc-200 dark:bg-zinc-600 rounded">Borrowed</button>
+     </div>
+   </div>
+   ))}
   </div>
   
 </div>

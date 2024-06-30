@@ -6,35 +6,27 @@ import { MdOutlineSpaceDashboard, MdOutlineLogout } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import { FaChalkboardUser, FaCircle } from "react-icons/fa6";
 import { PiStudentFill } from "react-icons/pi";
+import axios from 'axios'
 import Swal from "sweetalert2";
-import axios from "axios";
-
 
 const panels = [
   {
     id: "Dashboard",
     icon: MdOutlineSpaceDashboard,
-    name: "Browse Books",
-    subpanels: ["All Books", "Available", "Unavailable"],
-    links: ["/allbooks", "/available", "/unavailable"],
+    name: "Manage Books",
+    subpanels: ["All Books"],
+    links: ["/sp/allbooks"],
   },
   {
     id: "Profile",
     icon: CgProfile,
     name: "Profile",
-    subpanels: ["Edit Profile", "Pending"],
-    links: ["/editprofile", "/mybooks", "/history"],
-  },
-  {
-    id: "Comments",
-    icon: FaChalkboardUser,
-    name: "Account Management",
-    subpanels: ["Borrowed Books", "Renew Books", "Return Books"],
-    links: ["/borrowedbooks", "/renewbooks", "/returnbooks"],
+    subpanels: ["Edit Profile", "Add Admin", "View User"],
+    links: ["/sp/ad_edit_profile", "/sp/add_admin", "/sp/view_user"],
   },
 ];
 
-function Navbar() {
+function SuperAdminNav() {
   const navigate = useNavigate()
   const location = useLocation();
   const [activePanel, setActivePanel] = useState(null);
@@ -42,20 +34,21 @@ function Navbar() {
   const [id, setID] = useState("");
 
  useEffect(()=>{
-  const fetchData = async()=>{
-   try{
-   const res = await axios.get(`${process.env.REACT_APP_URI}/user`,{withCredentials:true})
-   if(res.data.valid){
-     setID(res.data.id)
-   }else{
-     console.log(res.data.error)
+   const fetchData = async()=>{
+    try{
+    const res = await axios.get(`${process.env.REACT_APP_URI}/user`,{withCredentials:true})
+    if(res.data.valid){
+      setID(res.data.id)
+    }else{
+      console.log(res.data.error)
+    }
+    }catch(error){
+      console.log(error)
+    }
    }
-   }catch(error){
-     console.log(error)
-   }
-  }
-  fetchData()
-},[])
+   fetchData()
+ },[])
+
   useEffect(() => {
     panels.forEach((panel) => {
       panel.links.forEach((link, index) => {
@@ -84,6 +77,7 @@ function Navbar() {
   const isSubpanelActive = (panelId, subpanel) => {
     return activeSubpanels[panelId] === subpanel;
   };
+
   const handleLogout = async () => {
     Swal.fire({
       title: "Are you sure?",
@@ -111,6 +105,8 @@ function Navbar() {
       }
     });
 };
+
+  
   return (
     <div>
       <Disclosure as="nav">
@@ -120,7 +116,7 @@ function Navbar() {
             aria-hidden="true"
           />
         </Disclosure.Button>
-        <div className="p-6 w-1/2 h-screen bg-white z-20 fixed top-0 -left-96 lg:left-0 lg:w-60 border-none drop-shadow-2xl peer-focus:left-0 peer:transition ease-out delay-150 duration-200">
+        <div className="p-6 w-1/2 h-screen bg-white z-20 fixed top-0 -left-96 lg:left-0 lg:w-60 border-none drop-shadow-2xl peer-focus:left-0 peer:transition ease-out delay-150 duration-200" >
           <div className="flex flex-col justify-start item-center">
             <h1 className="text-3xl text-center cursor-pointer font-bold text-orange-400 border-b border-gray-100 pb-4 w-full">
               Epahiram
@@ -171,11 +167,13 @@ function Navbar() {
                 </span>
               </div>
 
-              <div  className="flex mb-2 items-center gap-4 pl-9 border border-gray-200 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto"
-      onClick={handleLogout}>
-                <MdOutlineLogout className="text-3xl text-gray-600" />
-                <h3 className="text-base font-semibold">Logout</h3>
-              </div>
+              <div
+      className="flex mb-2 items-center gap-4 pl-9 border border-gray-200 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto"
+      onClick={handleLogout}
+    >
+      <MdOutlineLogout className="text-3xl text-gray-600" />
+      <h3 className="text-base font-semibold">Logout</h3>
+    </div>
             </div>
           </div>
         </div>
@@ -184,4 +182,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default SuperAdminNav;

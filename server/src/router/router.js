@@ -4,8 +4,10 @@ const pdfParser = require('pdf-parse');
 const { db } = require('../database/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { viewBooks, viewAllBooks, viewBooksById, updateBook, deleteBooks, getId } = require('../auth/auth.controller');
-const { uploadProfile, getProfile, logout,  } = require('../auth/user.controller');
+const { viewBooks, viewAllBooks, viewBooksById, deleteBooks, getId } = require('../auth/auth.controller');
+const { getProfile, logout, allUser, addAdmin, updateProfile, getAdmin, updateAdmin, deleteAdmin,  } = require('../auth/user.controller');
+const { requestPasswordReset, resetPassword, requestResetPass } = require('../auth/reset');
+const { borrowBook, getMyBooks, borrowCancel, borrowedBooks, getPending } = require('../auth/book');
 require('dotenv').config()
 
 const router = express.Router();
@@ -88,7 +90,7 @@ router.post('/addbooks', upload.single('file'), async (req, res) => {
 
 router.post('/create_account', upload.single('file'), async (req, res) => {
     const { email, password, fullname } = req.body;
-    const findStudId = "SELECT * FROM users WHERE stud_id = ?";
+    const findStudId = "SELECT * FROM users WHERE stud_id = ? or email = ?";
     const insertDB = "INSERT INTO users(email, user_password, stud_id, fullname) VALUES(?, ?, ?, ?)"
     
     if(!password.match(/^(?=.*[A-Z])|(?=.*\d)(?=.*\W).{8,}$/)) return res.json({error:"Password must contain sybmols capital and number"})
@@ -111,7 +113,7 @@ router.post('/create_account', upload.single('file'), async (req, res) => {
         if (data.info.Producer !== 'dompdf + CPDF') return res.json({ error: "Invalid PDF Format" });
         if (data.info.Title !== 'Certificate of Registration') return res.json({ error: "Invalid PDF Format" });
 
-        const [findID] = await db.promise().query(findStudId, [studentID]);
+        const [findID] = await db.promise().query(findStudId, [studentID, email]);
         if (findID.length> 0) return res.json({error: "Already Created Account!" });
 
         const hashPassword = await bcrypt.hash(password, 10);
@@ -131,7 +133,7 @@ router.post('/create_account', upload.single('file'), async (req, res) => {
 router.post('/login', upload.single('file'), async(req,res)=>{
     const findID = "SELECT * FROM users WHERE stud_id = ?"
     const {password} = req.body
-
+     if(!req.file) return res.json({error:"No pdf file selected"})
     if(!password) return res.json({error:"Fill up password"})
     
     try{
@@ -172,7 +174,7 @@ router.post('/login', upload.single('file'), async(req,res)=>{
 })
 
 function generateAccessToken(stud_id){
-    const accessToken = jwt.sign({studID:stud_id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn:'1m'})
+    const accessToken = jwt.sign({studID:stud_id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn:'1d'})
     return accessToken;
 }
 function generateRefreshToken(stud_id){
@@ -182,39 +184,54 @@ function generateRefreshToken(stud_id){
 }
 
 const isTokenValid = (req, res, next) => {
-    const token = req.cookies.acs;
+  const findRole = "SELECT * FROM users WHERE stud_id = ?";
+  const token = req.cookies.acs;
 
-    if (!token) return res.sendStatus(401);
+  if (!token) return res.sendStatus(401);
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) {
-            if (err.name === 'TokenExpiredError') {
-                const refreshToken = req.cookies.rfs;
-                if (!refreshToken || !refreshTokens.includes(refreshToken)) {
-                    return res.sendStatus(403);
-                }
-
-                jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-                    if (err) return res.sendStatus(403); 
-
-                    const newAccessToken = generateAccessToken(user.studID);
-                    res.cookie('acs', newAccessToken, { httpOnly: true, secure: true, sameSite: 'Strict' });
-                    req.user = user;
-                    next();
-                });
-            } else {
-                return res.sendStatus(403); 
-            }
-        } else {
-            req.user = user;
-            next();
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      if (err.name === 'TokenExpiredError') {
+        const refreshToken = req.cookies.rfs;
+        if (!refreshToken || !refreshTokens.includes(refreshToken)) {
+          return res.sendStatus(403);
         }
-    });
+
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, user) => {
+          if (err) return res.sendStatus(403);
+          const [isUser] = await db.promise().query(findRole, [user.studID]);
+
+          if (!isUser.length) return res.sendStatus(404); 
+
+          const role = isUser[0].role;
+
+          const newAccessToken = generateAccessToken(user.studID);
+          res.cookie('acs', newAccessToken, { httpOnly: true, secure: true, sameSite: 'Strict' });
+          req.user = user;
+          req.user.role = role; 
+          next();
+        });
+      } else {
+        return res.sendStatus(403);
+      }
+    } else {
+      db.promise().query(findRole, [user.studID])
+        .then(([isUser]) => {
+          if (!isUser.length) return res.sendStatus(404); 
+
+          const role = isUser[0].role;
+          req.user = user;
+          req.user.role = role; 
+         next();
+        })
+        .catch(err => res.sendStatus(500)); 
+    }
+  });
 };
 
-const protectedRoute = async(req, res)=>{
-    return res.json({valid:true})
-}
+const protectedRoute = (req, res) => {
+  return res.json({ valid: true, role: req.user.role });
+};
 
 router.get('/viewBooks', viewBooks)
 
@@ -248,5 +265,17 @@ router.post('/upload_avatar',upload.single('file'),async(req, res)=>{
 })
 router.get('/getProfile', getProfile)
 router.post('/logout', logout)
-
+router.get('/all_user', allUser)
+router.post('/addadmin', addAdmin)
+router.post('/borrow_books', borrowBook)
+router.post('/req_reset', requestResetPass)
+router.post('/reset_password', resetPassword)
+router.get('/mybooks', getMyBooks)
+router.post('/cancel_borrow', borrowCancel)
+router.get('/borrowed_books', borrowedBooks)
+router.post('/update_profile', updateProfile)
+router.post('/get_admin', getAdmin)
+router.post('/update_admin', updateAdmin)
+router.delete('/delete_admin', deleteAdmin)
+router.get('/pending', getPending)
 module.exports = router;
