@@ -9,11 +9,11 @@ export default function Mybooks() {
 
   const [profile, setProfile] = useState([]);
   const [error, setError] = useState(false);
-console.log(book)
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_URI}/mybooks`, { withCredentials: true });
+        const res = await axios.get(`${process.env.REACT_APP_URI}/userBook`, { withCredentials: true });
         if (res.data.valid) {
           setBooks(res.data.value);
     
@@ -100,7 +100,7 @@ console.log(book)
                   <tr className='border-b dark:border-zinc-700'>
                     <th className='pb-2'>Title</th>
                     <th className='pb-2'>Category</th>
-                    <th className='pb-2'>Purpose</th>
+                   
 
                     <th className='pb-2'>Status</th>
                   </tr>
@@ -111,12 +111,11 @@ console.log(book)
                       <td className='flex items-center py-4'>
                       <img src={`data:image/jpeg;base64,${b.photo}`} className="w-10 h-15 mr-4" alt="Book Cover" />
                         <div>
-                          <h3 className='font-semibold'>{b.book}</h3>
+                          <h3 className='font-semibold'>{b.books_name}</h3>
                         </div>
                       </td>
                 
                       <td className='py-4'>{b.category}</td>
-                      <td className='py-4'>{b.purpose}</td>
                       <td className='py-4 space-y-1'>
                         <button  onClick={()=>handleCancel(b.borrow_id)} className='bg-orange-500  p-1 rounded'>Cancel</button>
   

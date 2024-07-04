@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function Borrow({ handleClose, book }) {
+export default function Renew({ handleClose, book }) {
     const [purpose, setPurpose] = useState('')
-    const id = book.books_id
-    const owner_id = book.id
-    console.log(`${owner_id} is the ownwer and ${id}`)
+    const user_id = book.user_id
+    const borrow_id = book.borrow_id
+    const books_id = book.books_id
+
   
   const onClick = () => {
 
@@ -17,7 +18,7 @@ export default function Borrow({ handleClose, book }) {
 const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-        const res = await axios.post(`${process.env.REACT_APP_URI}/borrow_books`, { purpose, id, owner_id}, { withCredentials: true });
+        const res = await axios.post(`${process.env.REACT_APP_URI}/renew`, { purpose, books_id, borrow_id, user_id}, { withCredentials: true });
          if(res.data.valid){
           toast.success("Sucess")
           setPurpose('')

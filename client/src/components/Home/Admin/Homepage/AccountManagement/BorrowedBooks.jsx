@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import Navbar from '../../Navbar/Navbar'
+
 import axios from 'axios'
 import animated_book from '../../../../utils/image/science-book.gif'
+import AdminNav from '../../Navbar/AdminNav'
 
 export default function BorrowedBooks() {
   const [book, setBook] = useState([])
@@ -10,7 +11,7 @@ export default function BorrowedBooks() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_URI}/borrowed_books`, { withCredentials: true })
+        const res = await axios.get(`${process.env.REACT_APP_URI}/borrow`, { withCredentials: true })
         if (res.data.valid) {
           const formattedBooks = res.data.value.map(book => ({
             ...book,
@@ -30,7 +31,7 @@ export default function BorrowedBooks() {
   return (
     <>
       <div className='flex'>
-        <Navbar />
+      <AdminNav />
         <main className='ml-60 flex-grow p-6'>
           <div className="mb-4">
             <h2 className="text-xl font-semibold">Your Shelf</h2>
@@ -57,7 +58,7 @@ export default function BorrowedBooks() {
                       <p>Submission Due <span className="text-red-600">{book.return_date}</span></p>
                     </div>
                     <div className="flex justify-between items-center">
-                      <button  className="p-2 bg-zinc-200 dark:bg-zinc-600 rounded">Borrowed</button>
+                      <button className="p-2 bg-zinc-200 dark:bg-zinc-600 rounded">Borrowed</button>
                     </div>
                   </div>
                 ))}

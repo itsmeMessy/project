@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function Borrow({ handleClose, book }) {
-    const [purpose, setPurpose] = useState('')
-    const id = book.books_id
-    const owner_id = book.id
-    console.log(`${owner_id} is the ownwer and ${id}`)
+export default function Return({ handleClose, book }) {
+    const user_id = book.user_id
+    const borrow_id = book.borrow_id
+    const books_id = book.books_id
+
   
   const onClick = () => {
 
@@ -17,10 +17,10 @@ export default function Borrow({ handleClose, book }) {
 const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-        const res = await axios.post(`${process.env.REACT_APP_URI}/borrow_books`, { purpose, id, owner_id}, { withCredentials: true });
+        const res = await axios.post(`${process.env.REACT_APP_URI}/acceptReturn`, { books_id, borrow_id, user_id}, { withCredentials: true });
          if(res.data.valid){
           toast.success("Sucess")
-          setPurpose('')
+
           setTimeout(()=>{
             handleClose()
           },3000)
@@ -80,11 +80,12 @@ const handleSubmit = async (event) => {
             <textarea
               className="border border-zinc-300 dark:border-zinc-700 rounded w-full py-2 px-4 text-zinc-700 dark:text-zinc-100 leading-tight focus:outline-none"
               placeholder="Purpose"
-              onChange={(e)=>setPurpose(e.target.value)}
+             value={book.purpose}
+             disabled
             ></textarea>
           </div>
           <button className="w-full bg-orange-500 text-white py-2 px-4 rounded focus:outline-none">
-            BORROW
+           Accept 
           </button>
         </form>
       </div>

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import Navbar from '../../Navbar/Navbar'
+
 import axios from 'axios'
 import animated_book from '../../../../utils/image/science-book.gif'
+import AdminNav from '../../Navbar/AdminNav'
 import Return from './Sub/Return'
 
 export default function Returnbooks() {
@@ -16,11 +17,10 @@ const handleSubmit= (book)=>{
 const handleClose = ()=>{
   setOpen(false)
 }
- 
   useEffect(()=>{
     const fetchData = async()=>{
       try {
-        const res = await axios.get(`${process.env.REACT_APP_URI}/borrowed_books`, {withCredentials:true})
+        const res = await axios.get(`${process.env.REACT_APP_URI}/viewReturn`, {withCredentials:true})
         if(res.data.valid){
           const formattedBooks = res.data.value.map(book=>({
             ...book,
@@ -38,7 +38,7 @@ const handleClose = ()=>{
   return (
     <>
     <div className='flex'>
-        <Navbar />
+     <AdminNav />
         <main className='ml-60 flex-grow p-6'>
    
       <div class="min-h-screen bg-zinc-100 dark:bg-zinc-800 p-4">
@@ -57,7 +57,7 @@ const handleClose = ()=>{
 : (
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
     {book.map((book,index)=>(
-      <div key={index} class="p-4 bg-white dark:bg-zinc-700 rounded shadow">
+      <div class="p-4 bg-white dark:bg-zinc-700 rounded shadow">
       <img src={`data:image/jpeg; base64,${book.photo}`} alt="Book Cover" class="mb-4 mx-auto" />
       <p class="font-semibold">{book.book}</p>
       <div class="my-2 text-sm text-zinc-500 dark:text-zinc-400">
@@ -66,13 +66,7 @@ const handleClose = ()=>{
       </div>
       <div class="flex justify-between items-center">
         <button class="p-2 bg-zinc-200 dark:bg-zinc-600 rounded">Borrowed</button>
-        <button
-  disabled={book.retttt === 'return'}
-  onClick={() => handleSubmit(book)}
-  className={`p-2 ${book.retttt === 'return' ? 'bg-gray-500' : 'bg-red-500'} text-white rounded`}
->
-  Return
-</button> 
+        <button onClick ={()=>handleSubmit(book)}class="p-2 bg-red-500 text-white rounded">Accept Return</button>
       </div>
     </div>
     ))}

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import Navbar from '../../Navbar/Navbar'
 import axios from 'axios'
 import animated_book from '../../../../utils/image/science-book.gif'
 import Renew from './Sub/Renew'
+import AdminNav from '../../Navbar/AdminNav'
 
 
 export default function Renewbooks() {
@@ -22,7 +22,7 @@ const handleClose = ()=>{
   useEffect(()=>{
     const fetchData = async()=>{
       try {
-        const res = await axios.get(`${process.env.REACT_APP_URI}/borrowed_books`, {withCredentials:true})
+        const res = await axios.get(`${process.env.REACT_APP_URI}/renewBooks`, {withCredentials:true})
         if(res.data.valid){
          const formattedBooks = res.data.value.map(book=>({
           ...book,
@@ -40,7 +40,7 @@ const handleClose = ()=>{
   return (
     <>
     <div className='flex'>
-        <Navbar />
+<AdminNav />
         <main className='ml-60 flex-grow p-6'>
    
       <div class="min-h-screen bg-zinc-100 dark:bg-zinc-800 p-4">
@@ -73,7 +73,7 @@ const handleClose = ()=>{
   disabled={book.renew}
   className={`p-2 bg-red-500 text-white rounded ${book.renew ? 'opacity-50 cursor-not-allowed' : ''}`}
 >
-  Renew
+  Accept Renew
 </button>
 
         </div>

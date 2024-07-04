@@ -7,7 +7,8 @@ const jwt = require('jsonwebtoken');
 const { viewBooks, viewAllBooks, viewBooksById, deleteBooks, getId } = require('../auth/auth.controller');
 const { getProfile, logout, allUser, addAdmin, updateProfile, getAdmin, updateAdmin, deleteAdmin,  } = require('../auth/user.controller');
 const { requestPasswordReset, resetPassword, requestResetPass } = require('../auth/reset');
-const { borrowBook, getMyBooks, borrowCancel, borrowedBooks, getPending } = require('../auth/book');
+const { borrowBook, getMyBooks, borrowCancel, borrowedBooks, getPending, acceptBook, getUserBooks, renewBooks } = require('../auth/book');
+const { brrbooks, rnwbooks, accepetRenew, returnBooks, acceptReturn, viewReturn } = require('../auth/borrowed');
 require('dotenv').config()
 
 const router = express.Router();
@@ -278,4 +279,15 @@ router.post('/get_admin', getAdmin)
 router.post('/update_admin', updateAdmin)
 router.delete('/delete_admin', deleteAdmin)
 router.get('/pending', getPending)
+router.post('/accept', acceptBook)
+router.get('/userBook', getUserBooks)
+router.post('/renew', renewBooks)
+
+
+router.get('/borrow',brrbooks)
+router.get('/renewBooks', rnwbooks)
+router.post('/acceptRenew', accepetRenew)
+router.post('/returnBooks', returnBooks)
+router.post('/acceptReturn', acceptReturn)
+router.get('/viewReturn', viewReturn)
 module.exports = router;

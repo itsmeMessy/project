@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import Swal from 'sweetalert2'
 import Navbar from '../../Navbar/Navbar';
+import Borrow from './Borrow/Borrow';
 
 
 export default function Available() {
-  const [showAddBooks, setShowAddBooks] = useState(false);
-  const [showEditBooks, setShowEditBooks] = useState(false)
+  const [borrowModalOpen, setBorrowModalOpen] = useState(false);
   const [booksdata, setBooksData] = useState([])
   const [profile, setProfile] = useState({ fullname: '', email: '', profile: '' })
   const [error, setError] = useState('')
-const [id, setID] = useState('')
+   const [id, setID] = useState(null)
+   const [selectedBook, setSelectedBook] = useState(null);
   useEffect(()=>{
     const fetchData = async()=>{
       try{
@@ -41,43 +42,17 @@ const [id, setID] = useState('')
         setError(error.message)
     }
 }
-  const handleCloseEdit = async()=>{
-    setShowEditBooks(false)
-  }
+const handleCloseBorrow = () => {
+  setSelectedBook(null);
+  setBorrowModalOpen(false);
+};
  
 
-  const handleEdit = async(id)=>{
-    setID(id)
-    setShowEditBooks(true)
+  const handleEdit = async(book)=>{
+    setSelectedBook(book)
+    setBorrowModalOpen(true)
   }
-  const handleDelete = async(id)=>{
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
-    }).then(async(result) => {
-      if (result.isConfirmed) {
-       try{
-          const res = await axios.put(`${process.env.REACT_APP_URI}/delete_books`, {id}, {withCredentials:true})
-          if(res.data.valid){
-            Swal.fire({
-              title: "Deleted!",
-              text: "Your Books has been deleted.",
-              icon: "success"
-            });
-          }else{
-            console.log(res.data.error)
-          }
-       }catch(error){
-        console.log(error)
-       }
-      }
-    });
-  }
+  
 
   return (
     <>
@@ -125,7 +100,7 @@ const [id, setID] = useState('')
         {booksdata.map((book)=>(
   <tr key={book.books_id} class="border-b dark:border-zinc-700">
   <td class="flex items-center py-4">
-  <img src={`data:image/jpeg;base64,${book.photo}`} className="w-10 h-15 mr-4" alt="Book Cover" /> <img src={`data:image/jpeg;base64,${book.photo}`} className="w-10 h-15 mr-4" alt="Book Cover" />
+  <img src={`data:image/jpeg;base64,${book.photo}`} className="w-10 h-15 mr-4" alt="Book Cover" />
     <div>
       <h3 class="font-semibold">{book.book}</h3>
     </div>
@@ -139,8 +114,11 @@ const [id, setID] = useState('')
     </span>
   </td>
   <td className="py-4 space-y-2">
-    <button onClick={()=>handleEdit(book.books_id)} class="bg-green-200 text-green-800 p-1 rounded">
-    <svg className="h-5 w-5 text-orange-500"  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />  <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />  <line x1="16" y1="5" x2="19" y2="8" /></svg>
+    <button onClick={()=>handleEdit(book)} class="bg-green-200 text-green-800 p-1 rounded">
+    <svg class="h-6 w-6 text-orange-500"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+</svg>
+
     </button>
    </td>
   
@@ -153,6 +131,11 @@ const [id, setID] = useState('')
 </div>
 </main>
 </div>
+{borrowModalOpen && (
+        <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
+          <Borrow book={selectedBook} handleClose={handleCloseBorrow} />
+        </div>
+      )}
     </>
   )
 }

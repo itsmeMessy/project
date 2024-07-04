@@ -21,15 +21,15 @@ const panels = [
     id: "Profile",
     icon: CgProfile,
     name: "Profile",
-    subpanels: ["Edit Profile", "Add Admin", "Edit User"],
-    links: ["/admin/ad_edit_profile", "/mybooks", "/history"],
+    subpanels: ["Edit Profile"],
+    links: ["/admin/ad_edit_profile"],
   },
   {
     id: "Comments",
     icon: FaChalkboardUser,
     name: "Account Management",
     subpanels: ["Borrowed Books", "Renew Books", "Return Books"],
-    links: ["/borrowedbooks", "/renewbooks", "/returnbooks"],
+    links: ["/admin/ad_borrowed_books", "/admin/ad_renew_books", "/admin/ad_return_books"],
   },
 ];
 
