@@ -5,6 +5,7 @@ const {db} = require('../database/database')
 
 const borrowBook = async(req,res)=>{
     const {purpose, id, owner_id} = req.body
+    console.log(id, owner_id)
     const findBook = "SELECT * FROM books where books_id = ?"
     const findBorrow = "SELECT * FROM borrow WHERE owner_id = ? AND books_id = ?"
     const findID = "SELECT * FROM users where stud_id = ?"
@@ -21,7 +22,7 @@ const borrowBook = async(req,res)=>{
                 const [isUser] = await db.promise().query(findID, [user.studID])
                 if(!isUser) return res.json({error:"No user Found"})
                 const user_id = isUser[0].id
-                console.log(user_id)
+          
 
                 const [isBorrow] = await db.promise().query(findBorrow,[owner_id, id])
                 if(isBorrow.length>0) return res.json({error:"Opps You have pending on this Books!"})
@@ -58,7 +59,9 @@ const getMyBooks = async (req, res) => {
     br.purpose AS purpose,
     br.borrow_id AS borrow_id,
     br.status AS status, 
-    br.owner_id AS owner_id
+    br.owner_id AS owner_id,
+    br.books_id AS books_id
+
 FROM 
     borrow br 
 JOIN 
@@ -87,7 +90,6 @@ WHERE
              result.forEach(photo=>{
                 photo.photo = photo.photo.toString('base64')
              })
-             console.log(result)
             return res.json({ valid: true, value:result });
         });
     } catch (error) {
@@ -138,7 +140,6 @@ WHERE
              result.forEach(photo=>{
                 photo.photo = photo.photo.toString('base64')
              })
-             console.log(result)
             return res.json({ valid: true, value:result });
         });
     } catch (error) {
@@ -269,13 +270,14 @@ WHERE
 }
 
 const acceptBook = async (req, res) => {
-    const { id } = req.body;
+    const { id, user_id, owner_id, booksID} = req.body;
     const findID = "SELECT * FROM users WHERE stud_id = ?";
     const update = "UPDATE books SET available = 0 WHERE books_id = ?";
     const borrow = "SELECT * FROM borrow WHERE borrow_id = ?";
     const accept = "UPDATE borrow SET status = 'Accepted' WHERE borrow_id = ?";
     const findBooks = "SELECT * FROM books WHERE books_id = ?";
     const updateAcceptedDate = "UPDATE borrow SET accepted_data = CURDATE(), return_date = DATE_ADD(CURDATE(), INTERVAL 7 DAY) WHERE borrow_id = ?"; 
+    const removePending = "DELETE FROM borrow  WHERE id != ? and owner_id = ? and books_id = ?;"
 
     const ref = req.cookies.rfs;
     if (!ref) return res.json({ error: "Invalid Token" });
@@ -295,9 +297,12 @@ const acceptBook = async (req, res) => {
 
             const [isAccept] = await db.promise().query(accept, [id]);
             if (!isAccept.affectedRows) return res.json({ error: "Can't accept" });
+            
 
             const [isUpdate] = await db.promise().query(update, [findBook[0].books_id]);
             if (!isUpdate.affectedRows) return res.json({ error: "Can't update" });
+
+            const [isDeleted] = await db.promise().query(removePending,[user_id, owner_id, booksID])
 
             const [isDateUpdated] = await db.promise().query(updateAcceptedDate, [id]);
             if (!isDateUpdated.affectedRows) return res.json({ error: "Can't update accepted date" });

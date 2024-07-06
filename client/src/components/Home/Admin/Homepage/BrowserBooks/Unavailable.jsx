@@ -9,7 +9,8 @@ export default function Unavailable() {
   const [profile, setProfile] = useState({ fullname: '', email: '', profile: '' });
   const [error, setError] = useState('');
   const [expandedPurpose, setExpandedPurpose] = useState(null);
-   
+  
+  console.log(booksdata)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,8 +71,12 @@ export default function Unavailable() {
     });
   };
 
-  const handleAccept = async (id) => {
-alert(id)
+  const handleAccept = async (book) => {
+     const id = book.borrow_id;
+     const user_id = book.id;
+     const owner_id = book.owner_id;
+    const booksID = book.books_id;
+    console.log(id, user_id, owner_id, booksID)
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -83,7 +88,7 @@ alert(id)
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await axios.post(`${process.env.REACT_APP_URI}/accept`, { id }, { withCredentials: true });
+          const res = await axios.post(`${process.env.REACT_APP_URI}/accept`, { id , user_id, owner_id, booksID}, { withCredentials: true });
           if (res.data.valid) {
             Swal.fire({
               title: 'Accepted!',
@@ -179,7 +184,7 @@ alert(id)
                 <span>{book.student_id}</span>
               </td>
               <td className='py-4 space-y-2'>
-                <button onClick={() => handleAccept(book.borrow_id)} className='bg-green-200 text-green-800 p-1 rounded'>
+                <button onClick={() => handleAccept(book)} className='bg-green-200 text-green-800 p-1 rounded'>
                   <svg className='h-6 w-6 text-orange-400' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
                     <path d='M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3' />
                   </svg>
